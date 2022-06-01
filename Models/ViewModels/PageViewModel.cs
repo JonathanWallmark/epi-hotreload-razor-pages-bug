@@ -1,29 +1,31 @@
 using epi_razor_pages.Models.Pages;
+using EPiServer.Core;
 
-namespace epi_razor_pages.Models.ViewModels;
-
-public class PageViewModel<T> : IPageViewModel<T> where T : SitePageData
+namespace epi_razor_pages.Models.ViewModels
 {
-    public PageViewModel(T currentPage)
+    public class PageViewModel<T> : IPageViewModel<T> where T : SitePageData
     {
-        CurrentPage = currentPage;
+        public PageViewModel(T currentPage)
+        {
+            CurrentPage = currentPage;
+        }
+
+        public T CurrentPage { get; private set; }
+
+        public LayoutModel Layout { get; set; }
+
+        public IContent Section { get; set; }
     }
 
-    public T CurrentPage { get; private set; }
-
-    public LayoutModel Layout { get; set; }
-
-    public IContent Section { get; set; }
-}
-
-public static class PageViewModel
-{
-    /// <summary>
-    /// Returns a PageViewModel of type <typeparam name="T"/>.
-    /// </summary>
-    /// <remarks>
-    /// Convenience method for creating PageViewModels without having to specify the type as methods can use type inference while constructors cannot.
-    /// </remarks>
-    public static PageViewModel<T> Create<T>(T page)
-        where T : SitePageData => new(page);
+    public static class PageViewModel
+    {
+        /// <summary>
+        /// Returns a PageViewModel of type <typeparam name="T"/>.
+        /// </summary>
+        /// <remarks>
+        /// Convenience method for creating PageViewModels without having to specify the type as methods can use type inference while constructors cannot.
+        /// </remarks>
+        public static PageViewModel<T> Create<T>(T page)
+            where T : SitePageData => new(page);
+    }
 }

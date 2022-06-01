@@ -4,36 +4,38 @@ using epi_razor_pages.Business.Rendering;
 using EPiServer.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace epi_razor_pages.Extensions;
-
-public static class ServiceCollectionExtensions
+namespace epi_razor_pages.Extensions
 {
-    public static IServiceCollection AddAlloy(this IServiceCollection services)
+    public static class ServiceCollectionExtensions
     {
-        services.Configure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new SiteViewEngineLocationExpander()));
-
-        services.Configure<DisplayOptions>(displayOption =>
+        public static IServiceCollection AddAlloy(this IServiceCollection services)
         {
-            displayOption.Add("full", "/displayoptions/full", Globals.ContentAreaTags.FullWidth, string.Empty, "epi-icon__layout--full");
-            displayOption.Add("wide", "/displayoptions/wide", Globals.ContentAreaTags.WideWidth, string.Empty, "epi-icon__layout--wide");
-            displayOption.Add("half", "/displayoptions/half", Globals.ContentAreaTags.HalfWidth, string.Empty, "epi-icon__layout--half");
-            displayOption.Add("narrow", "/displayoptions/narrow", Globals.ContentAreaTags.NarrowWidth, string.Empty, "epi-icon__layout--narrow");
-        });
+            services.Configure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new SiteViewEngineLocationExpander()));
 
-        services.Configure<MvcOptions>(options => options.Filters.Add<PageContextActionFilter>());
+            services.Configure<DisplayOptions>(displayOption =>
+            {
+                displayOption.Add("full", "/displayoptions/full", Globals.ContentAreaTags.FullWidth, string.Empty, "epi-icon__layout--full");
+                displayOption.Add("wide", "/displayoptions/wide", Globals.ContentAreaTags.WideWidth, string.Empty, "epi-icon__layout--wide");
+                displayOption.Add("half", "/displayoptions/half", Globals.ContentAreaTags.HalfWidth, string.Empty, "epi-icon__layout--half");
+                displayOption.Add("narrow", "/displayoptions/narrow", Globals.ContentAreaTags.NarrowWidth, string.Empty, "epi-icon__layout--narrow");
+            });
 
-        services.AddDisplayResolutions();
-        services.AddDetection();
+            services.Configure<MvcOptions>(options => options.Filters.Add<PageContextActionFilter>());
 
-        return services;
-    }
+            services.AddDisplayResolutions();
+            //services.AddDetection();
 
-    private static void AddDisplayResolutions(this IServiceCollection services)
-    {
-        services.AddSingleton<StandardResolution>();
-        services.AddSingleton<IpadHorizontalResolution>();
-        services.AddSingleton<IphoneVerticalResolution>();
-        services.AddSingleton<AndroidVerticalResolution>();
+            return services;
+        }
+
+        private static void AddDisplayResolutions(this IServiceCollection services)
+        {
+            services.AddSingleton<StandardResolution>();
+            services.AddSingleton<IpadHorizontalResolution>();
+            services.AddSingleton<IphoneVerticalResolution>();
+            services.AddSingleton<AndroidVerticalResolution>();
+        }
     }
 }

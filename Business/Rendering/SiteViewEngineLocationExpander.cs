@@ -1,27 +1,29 @@
 using Microsoft.AspNetCore.Mvc.Razor;
+using System.Collections.Generic;
 
-namespace epi_razor_pages.Business.Rendering;
-
-public class SiteViewEngineLocationExpander : IViewLocationExpander
+namespace epi_razor_pages.Business.Rendering
 {
-    private static readonly string[] AdditionalPartialViewFormats = new[]
+    public class SiteViewEngineLocationExpander : IViewLocationExpander
     {
+        private static readonly string[] AdditionalPartialViewFormats = new[]
+        {
         TemplateCoordinator.BlockFolder + "{0}.cshtml",
         TemplateCoordinator.PagePartialsFolder + "{0}.cshtml"
     };
 
-    public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
-    {
-        foreach (var location in viewLocations)
+        public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
-            yield return location;
+            foreach (var location in viewLocations)
+            {
+                yield return location;
+            }
+
+            for (var i = 0; i < AdditionalPartialViewFormats.Length; i++)
+            {
+                yield return AdditionalPartialViewFormats[i];
+            }
         }
 
-        for (var i = 0; i < AdditionalPartialViewFormats.Length; i++)
-        {
-            yield return AdditionalPartialViewFormats[i];
-        }
+        public void PopulateValues(ViewLocationExpanderContext context) { }
     }
-
-    public void PopulateValues(ViewLocationExpanderContext context) { }
 }

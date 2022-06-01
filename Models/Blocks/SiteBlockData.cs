@@ -1,8 +1,11 @@
-namespace epi_razor_pages.Models.Blocks;
+using EPiServer.Core;
 
-/// <summary>
-/// Base class for all block types on the site
-/// </summary>
-public abstract class SiteBlockData : BlockData
+namespace epi_razor_pages.Models.Blocks
 {
+    /// <summary>
+    /// Base class for all block types on the site
+    /// </summary>
+    public abstract class SiteBlockData : BlockData
+    {
+    }
 }

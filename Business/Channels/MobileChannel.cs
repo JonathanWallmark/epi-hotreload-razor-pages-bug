@@ -1,23 +1,22 @@
 using EPiServer.Web;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
+using Microsoft.AspNetCore.Http;
 
-namespace epi_razor_pages.Business.Channels;
-
-//<summary>
-// Defines the 'Mobile' content channel
-//</summary>
-public class MobileChannel : DisplayChannel
+namespace epi_razor_pages.Business.Channels
 {
-    public const string Name = "mobile";
-
-    public override string ChannelName => Name;
-
-    public override string ResolutionId => typeof(IphoneVerticalResolution).FullName;
-
-    public override bool IsActive(HttpContext context)
+    //<summary>
+    // Defines the 'Mobile' content channel
+    //</summary>
+    public class MobileChannel : DisplayChannel
     {
-        var detection = context.RequestServices.GetRequiredService<IDetectionService>();
-        return detection.Device.Type == Device.Mobile;
+        public const string Name = "mobile";
+
+        public override string ChannelName => Name;
+
+        public override string ResolutionId => typeof(IphoneVerticalResolution).FullName;
+
+        public override bool IsActive(HttpContext context)
+        {
+            return false;
+        }
     }
 }

@@ -1,20 +1,23 @@
 using epi_razor_pages.Models.Blocks;
+using EPiServer.Core;
+using System.Collections.Generic;
 
-namespace epi_razor_pages.Models.ViewModels;
-
-public class PageListModel
+namespace epi_razor_pages.Models.ViewModels
 {
-    public PageListModel(PageListBlock block)
+    public class PageListModel
     {
-        Heading = block.Heading;
-        ShowIntroduction = block.IncludeIntroduction;
-        ShowPublishDate = block.IncludePublishDate;
+        public PageListModel(PageListBlock block)
+        {
+            Heading = block.Heading;
+            ShowIntroduction = block.IncludeIntroduction;
+            ShowPublishDate = block.IncludePublishDate;
+        }
+        public string Heading { get; set; }
+
+        public IEnumerable<PageData> Pages { get; set; }
+
+        public bool ShowIntroduction { get; set; }
+
+        public bool ShowPublishDate { get; set; }
     }
-    public string Heading { get; set; }
-
-    public IEnumerable<PageData> Pages { get; set; }
-
-    public bool ShowIntroduction { get; set; }
-
-    public bool ShowPublishDate { get; set; }
 }

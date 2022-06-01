@@ -1,11 +1,15 @@
-namespace epi_razor_pages;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
-public class Program
+namespace epi_razor_pages
 {
-    public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
+    public class Program
+    {
+        public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureCmsDefaults()
-            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureCmsDefaults()
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+    }
 }

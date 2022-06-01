@@ -1,19 +1,18 @@
 using EPiServer.Web;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
+using Microsoft.AspNetCore.Http;
 
-namespace epi_razor_pages.Business.Channels;
-
-/// <summary>
-/// Defines the 'Web' content channel
-/// </summary>
-public class WebChannel : DisplayChannel
+namespace epi_razor_pages.Business.Channels
 {
-    public override string ChannelName => "web";
-
-    public override bool IsActive(HttpContext context)
+    /// <summary>
+    /// Defines the 'Web' content channel
+    /// </summary>
+    public class WebChannel : DisplayChannel
     {
-        var detection = context.RequestServices.GetRequiredService<IDetectionService>();
-        return detection.Device.Type == Device.Desktop;
+        public override string ChannelName => "web";
+
+        public override bool IsActive(HttpContext context)
+        {
+            return true;
+        }
     }
 }

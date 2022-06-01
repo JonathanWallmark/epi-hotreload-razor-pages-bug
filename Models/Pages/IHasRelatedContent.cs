@@ -1,6 +1,9 @@
-namespace epi_razor_pages.Models.Pages;
+using EPiServer.Core;
 
-public interface IHasRelatedContent
+namespace epi_razor_pages.Models.Pages
 {
-    ContentArea RelatedContentArea { get; }
+    public interface IHasRelatedContent
+    {
+        ContentArea RelatedContentArea { get; }
+    }
 }

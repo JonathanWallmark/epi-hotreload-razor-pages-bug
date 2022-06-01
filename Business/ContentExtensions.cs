@@ -1,43 +1,47 @@
+using EPiServer.Core;
 using EPiServer.Filters;
 using EPiServer.Framework.Web;
 using EPiServer.ServiceLocation;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace epi_razor_pages.Business;
-
-/// <summary>
-/// Extension methods for content
-/// </summary>
-public static class ContentExtensions
+namespace epi_razor_pages.Business
 {
     /// <summary>
-    /// Filters content which should not be visible to the user.
+    /// Extension methods for content
     /// </summary>
-    public static IEnumerable<T> FilterForDisplay<T>(this IEnumerable<T> contents, bool requirePageTemplate = false, bool requireVisibleInMenu = false)
-        where T : IContent
+    public static class ContentExtensions
     {
-        var accessFilter = new FilterAccess();
-        var publishedFilter = new FilterPublished();
-        contents = contents.Where(x => !publishedFilter.ShouldFilter(x) && !accessFilter.ShouldFilter(x));
-        if (requirePageTemplate)
+        /// <summary>
+        /// Filters content which should not be visible to the user.
+        /// </summary>
+        public static IEnumerable<T> FilterForDisplay<T>(this IEnumerable<T> contents, bool requirePageTemplate = false, bool requireVisibleInMenu = false)
+            where T : IContent
         {
-            var templateFilter = ServiceLocator.Current.GetInstance<FilterTemplate>();
-            templateFilter.TemplateTypeCategories = TemplateTypeCategories.Request;
-            contents = contents.Where(x => !templateFilter.ShouldFilter(x));
-        }
-        if (requireVisibleInMenu)
-        {
-            contents = contents.Where(x => VisibleInMenu(x));
-        }
-        return contents;
-    }
-
-    private static bool VisibleInMenu(IContent content)
-    {
-        if (content is not PageData page)
-        {
-            return true;
+            var accessFilter = new FilterAccess();
+            var publishedFilter = new FilterPublished();
+            contents = contents.Where(x => !publishedFilter.ShouldFilter(x) && !accessFilter.ShouldFilter(x));
+            if (requirePageTemplate)
+            {
+                var templateFilter = ServiceLocator.Current.GetInstance<FilterTemplate>();
+                templateFilter.TemplateTypeCategories = TemplateTypeCategories.Request;
+                contents = contents.Where(x => !templateFilter.ShouldFilter(x));
+            }
+            if (requireVisibleInMenu)
+            {
+                contents = contents.Where(x => VisibleInMenu(x));
+            }
+            return contents;
         }
 
-        return page.VisibleInMenu;
+        private static bool VisibleInMenu(IContent content)
+        {
+            if (content is not PageData page)
+            {
+                return true;
+            }
+
+            return page.VisibleInMenu;
+        }
     }
 }

@@ -1,22 +1,26 @@
+using EPiServer.Core;
 using EPiServer.Shell.ObjectEditing;
 using EPiServer.Shell.ObjectEditing.EditorDescriptors;
+using System;
+using System.Collections.Generic;
 
-namespace epi_razor_pages.Business.EditorDescriptors;
-
-/// <summary>
-/// Registers an editor to select a ContactPage for a PageReference property using a dropdown
-/// </summary>
-[EditorDescriptorRegistration(
-    TargetType = typeof(PageReference),
-    UIHint = Globals.SiteUIHints.Contact)]
-public class ContactPageSelector : EditorDescriptor
+namespace epi_razor_pages.Business.EditorDescriptors
 {
-    public override void ModifyMetadata(ExtendedMetadata metadata, IEnumerable<Attribute> attributes)
+    /// <summary>
+    /// Registers an editor to select a ContactPage for a PageReference property using a dropdown
+    /// </summary>
+    [EditorDescriptorRegistration(
+        TargetType = typeof(PageReference),
+        UIHint = Globals.SiteUIHints.Contact)]
+    public class ContactPageSelector : EditorDescriptor
     {
-        SelectionFactoryType = typeof(ContactPageSelectionFactory);
+        public override void ModifyMetadata(ExtendedMetadata metadata, IEnumerable<Attribute> attributes)
+        {
+            SelectionFactoryType = typeof(ContactPageSelectionFactory);
 
-        ClientEditingClass = "epi-cms/contentediting/editors/SelectionEditor";
+            ClientEditingClass = "epi-cms/contentediting/editors/SelectionEditor";
 
-        base.ModifyMetadata(metadata, attributes);
+            base.ModifyMetadata(metadata, attributes);
+        }
     }
 }

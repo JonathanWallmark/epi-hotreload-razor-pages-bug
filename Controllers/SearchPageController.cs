@@ -1,21 +1,23 @@
 using epi_razor_pages.Models.Pages;
 using epi_razor_pages.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
-namespace epi_razor_pages.Controllers;
-
-public class SearchPageController : PageControllerBase<SearchPage>
+namespace epi_razor_pages.Controllers
 {
-    public ViewResult Index(SearchPage currentPage, string q)
+    public class SearchPageController : PageControllerBase<SearchPage>
     {
-        var model = new SearchContentModel(currentPage)
+        public ViewResult Index(SearchPage currentPage, string q)
         {
-            Hits = Enumerable.Empty<SearchContentModel.SearchHit>(),
-            NumberOfHits = 0,
-            SearchServiceDisabled = true,
-            SearchedQuery = q
-        };
+            var model = new SearchContentModel(currentPage)
+            {
+                Hits = Enumerable.Empty<SearchContentModel.SearchHit>(),
+                NumberOfHits = 0,
+                SearchServiceDisabled = true,
+                SearchedQuery = q
+            };
 
-        return View(model);
+            return View(model);
+        }
     }
 }

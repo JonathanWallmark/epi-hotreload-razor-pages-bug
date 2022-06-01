@@ -1,26 +1,31 @@
-namespace epi_razor_pages.Models.ViewModels;
+using EPiServer;
+using EPiServer.Core;
+using System;
 
-public class ContentRenderingErrorModel
+namespace epi_razor_pages.Models.ViewModels
 {
-    public ContentRenderingErrorModel(IContentData contentData, Exception exception)
+    public class ContentRenderingErrorModel
     {
-        if (contentData is IContent content)
+        public ContentRenderingErrorModel(IContentData contentData, Exception exception)
         {
-            ContentName = content.Name;
-        }
-        else
-        {
-            ContentName = string.Empty;
+            if (contentData is IContent content)
+            {
+                ContentName = content.Name;
+            }
+            else
+            {
+                ContentName = string.Empty;
+            }
+
+            ContentTypeName = contentData.GetOriginalType().Name;
+
+            Exception = exception;
         }
 
-        ContentTypeName = contentData.GetOriginalType().Name;
+        public string ContentName { get; set; }
 
-        Exception = exception;
+        public string ContentTypeName { get; set; }
+
+        public Exception Exception { get; set; }
     }
-
-    public string ContentName { get; set; }
-
-    public string ContentTypeName { get; set; }
-
-    public Exception Exception { get; set; }
 }

@@ -1,12 +1,16 @@
-namespace epi_razor_pages.Models;
+using epi_razor_pages;
+using EPiServer.DataAnnotations;
 
-/// <summary>
-/// Attribute used for site content types to set default attribute values
-/// </summary>
-public class SiteContentType : ContentTypeAttribute
+namespace Models
 {
-    public SiteContentType()
+    /// <summary>
+    /// Attribute used for site content types to set default attribute values
+    /// </summary>
+    public class SiteContentType : ContentTypeAttribute
     {
-        GroupName = Globals.GroupNames.Default;
+        public SiteContentType()
+        {
+            GroupName = Globals.GroupNames.Default;
+        }
     }
 }

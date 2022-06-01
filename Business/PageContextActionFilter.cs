@@ -4,51 +4,52 @@ using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace epi_razor_pages.Business;
-
-/// <summary>
-/// Intercepts actions with view models of type IPageViewModel and populates the view models
-/// Layout and Section properties.
-/// </summary>
-/// <remarks>
-/// This filter frees controllers for pages from having to care about common context needed by layouts
-/// and other page framework components allowing the controllers to focus on the specifics for the page types
-/// and actions that they handle.
-/// </remarks>
-public class PageContextActionFilter : IResultFilter
+namespace epi_razor_pages.Business
 {
-    private readonly PageViewContextFactory _contextFactory;
-    public PageContextActionFilter(PageViewContextFactory contextFactory)
+    /// <summary>
+    /// Intercepts actions with view models of type IPageViewModel and populates the view models
+    /// Layout and Section properties.
+    /// </summary>
+    /// <remarks>
+    /// This filter frees controllers for pages from having to care about common context needed by layouts
+    /// and other page framework components allowing the controllers to focus on the specifics for the page types
+    /// and actions that they handle.
+    /// </remarks>
+    public class PageContextActionFilter : IResultFilter
     {
-        _contextFactory = contextFactory;
-    }
-
-    public void OnResultExecuting(ResultExecutingContext context)
-    {
-        var controller = context.Controller as Controller;
-        var viewModel = controller?.ViewData.Model;
-
-        if (viewModel is IPageViewModel<SitePageData> model)
+        private readonly PageViewContextFactory _contextFactory;
+        public PageContextActionFilter(PageViewContextFactory contextFactory)
         {
-            var currentContentLink = context.HttpContext.GetContentLink();
+            _contextFactory = contextFactory;
+        }
 
-            var layoutModel = model.Layout ?? _contextFactory.CreateLayoutModel(currentContentLink, context.HttpContext);
+        public void OnResultExecuting(ResultExecutingContext context)
+        {
+            var controller = context.Controller as Controller;
+            var viewModel = controller?.ViewData.Model;
 
-            if (context.Controller is IModifyLayout layoutController)
+            if (viewModel is IPageViewModel<SitePageData> model)
             {
-                layoutController.ModifyLayout(layoutModel);
-            }
+                var currentContentLink = context.HttpContext.GetContentLink();
 
-            model.Layout = layoutModel;
+                var layoutModel = model.Layout ?? _contextFactory.CreateLayoutModel(currentContentLink, context.HttpContext);
 
-            if (model.Section == null)
-            {
-                model.Section = _contextFactory.GetSection(currentContentLink);
+                if (context.Controller is IModifyLayout layoutController)
+                {
+                    layoutController.ModifyLayout(layoutModel);
+                }
+
+                model.Layout = layoutModel;
+
+                if (model.Section == null)
+                {
+                    model.Section = _contextFactory.GetSection(currentContentLink);
+                }
             }
         }
-    }
 
-    public void OnResultExecuted(ResultExecutedContext context)
-    {
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
+        }
     }
 }

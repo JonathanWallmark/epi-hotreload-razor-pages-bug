@@ -1,61 +1,67 @@
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using epi_razor_pages.Helpers;
 using epi_razor_pages.Models.ViewModels;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
 using EPiServer.Web.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace epi_razor_pages.Business.Rendering;
-
-/// <summary>
-/// Wraps an MvcContentRenderer and adds error handling to ensure that blocks and other content
-/// rendered as parts of pages won't crash the entire page if a non-critical exception occurs while rendering it.
-/// </summary>
-/// <remarks>
-/// Prints an error message for editors so that they can easily report errors to developers.
-/// </remarks>
-public class ErrorHandlingContentRenderer : IContentRenderer
+namespace epi_razor_pages.Business.Rendering
 {
-    private readonly MvcContentRenderer _mvcRenderer;
-
-    public ErrorHandlingContentRenderer(MvcContentRenderer mvcRenderer)
-    {
-        _mvcRenderer = mvcRenderer;
-    }
-
     /// <summary>
-    /// Renders the contentData using the wrapped renderer and catches common, non-critical exceptions.
+    /// Wraps an MvcContentRenderer and adds error handling to ensure that blocks and other content
+    /// rendered as parts of pages won't crash the entire page if a non-critical exception occurs while rendering it.
     /// </summary>
-    public async Task RenderAsync(IHtmlHelper helper, IContentData contentData, TemplateModel templateModel)
+    /// <remarks>
+    /// Prints an error message for editors so that they can easily report errors to developers.
+    /// </remarks>
+    public class ErrorHandlingContentRenderer : IContentRenderer
     {
-        try
+        private readonly MvcContentRenderer _mvcRenderer;
+
+        public ErrorHandlingContentRenderer(MvcContentRenderer mvcRenderer)
         {
-            await _mvcRenderer.RenderAsync(helper, contentData, templateModel);
+            _mvcRenderer = mvcRenderer;
         }
-        catch (Exception ex) when (!Debugger.IsAttached)
+
+        /// <summary>
+        /// Renders the contentData using the wrapped renderer and catches common, non-critical exceptions.
+        /// </summary>
+        public async Task RenderAsync(IHtmlHelper helper, IContentData contentData, TemplateModel templateModel)
         {
-            switch (ex)
+            try
             {
-                case NullReferenceException:
-                case ArgumentException:
-                case ApplicationException:
-                case InvalidOperationException:
-                case NotImplementedException:
-                case IOException:
-                case EPiServerException:
-                    HandlerError(helper, contentData, ex);
-                    break;
-                default:
-                    throw;
+                await _mvcRenderer.RenderAsync(helper, contentData, templateModel);
+            }
+            catch (Exception ex) when (!Debugger.IsAttached)
+            {
+                switch (ex)
+                {
+                    case NullReferenceException:
+                    case ArgumentException:
+                    case ApplicationException:
+                    case InvalidOperationException:
+                    case NotImplementedException:
+                    case IOException:
+                    case EPiServerException:
+                        HandlerError(helper, contentData, ex);
+                        break;
+                    default:
+                        throw;
+                }
             }
         }
-    }
 
-    private static void HandlerError(IHtmlHelper helper, IContentData contentData, Exception renderingException)
-    {
-        if (helper.ViewContext.IsInEditMode())
+        private static void HandlerError(IHtmlHelper helper, IContentData contentData, Exception renderingException)
         {
-            var errorModel = new ContentRenderingErrorModel(contentData, renderingException);
-            helper.RenderPartialAsync("TemplateError", errorModel).GetAwaiter().GetResult();
+            if (helper.ViewContext.IsInEditMode())
+            {
+                var errorModel = new ContentRenderingErrorModel(contentData, renderingException);
+                helper.RenderPartialAsync("TemplateError", errorModel).GetAwaiter().GetResult();
+            }
         }
     }
 }

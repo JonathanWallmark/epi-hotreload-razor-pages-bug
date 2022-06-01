@@ -1,26 +1,29 @@
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ObjectEditing;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace epi_razor_pages.Business.EditorDescriptors;
-
-/// <summary>
-/// Provides a list of options corresponding to ContactPage pages on the site
-/// </summary>
-/// <seealso cref="ContactPageSelector"/>
-[ServiceConfiguration]
-public class ContactPageSelectionFactory : ISelectionFactory
+namespace epi_razor_pages.Business.EditorDescriptors
 {
-    private readonly ContentLocator _contentLocator;
-
-    public ContactPageSelectionFactory(ContentLocator contentLocator)
+    /// <summary>
+    /// Provides a list of options corresponding to ContactPage pages on the site
+    /// </summary>
+    /// <seealso cref="ContactPageSelector"/>
+    [ServiceConfiguration]
+    public class ContactPageSelectionFactory : ISelectionFactory
     {
-        _contentLocator = contentLocator;
-    }
+        private readonly ContentLocator _contentLocator;
 
-    public IEnumerable<ISelectItem> GetSelections(ExtendedMetadata metadata)
-    {
-        var contactPages = _contentLocator.GetContactPages();
+        public ContactPageSelectionFactory(ContentLocator contentLocator)
+        {
+            _contentLocator = contentLocator;
+        }
 
-        return new List<SelectItem>(contactPages.Select(c => new SelectItem { Value = c.PageLink, Text = c.Name }));
+        public IEnumerable<ISelectItem> GetSelections(ExtendedMetadata metadata)
+        {
+            var contactPages = _contentLocator.GetContactPages();
+
+            return new List<SelectItem>(contactPages.Select(c => new SelectItem { Value = c.PageLink, Text = c.Name }));
+        }
     }
 }

@@ -1,68 +1,73 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using epi_razor_pages.Models.Pages;
+using EPiServer;
+using EPiServer.Core;
 using EPiServer.Filters;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Configuration;
 using EPiServer.Web;
 
-namespace epi_razor_pages.Business;
-
-[ServiceConfiguration(Lifecycle = ServiceInstanceScope.Singleton)]
-public class ContentLocator
+namespace epi_razor_pages.Business
 {
-    private readonly IContentLoader _contentLoader;
-    private readonly IContentProviderManager _providerManager;
-    private readonly IPageCriteriaQueryService _pageCriteriaQueryService;
-
-    public ContentLocator(IContentLoader contentLoader, IContentProviderManager providerManager, IPageCriteriaQueryService pageCriteriaQueryService)
+    [ServiceConfiguration(Lifecycle = ServiceInstanceScope.Singleton)]
+    public class ContentLocator
     {
-        _contentLoader = contentLoader;
-        _providerManager = providerManager;
-        _pageCriteriaQueryService = pageCriteriaQueryService;
-    }
+        private readonly IContentLoader _contentLoader;
+        private readonly IContentProviderManager _providerManager;
+        private readonly IPageCriteriaQueryService _pageCriteriaQueryService;
 
-    public virtual IEnumerable<T> GetAll<T>(ContentReference rootLink)
-        where T : PageData
-    {
-        var children = _contentLoader.GetChildren<PageData>(rootLink);
-        foreach (var child in children)
+        public ContentLocator(IContentLoader contentLoader, IContentProviderManager providerManager, IPageCriteriaQueryService pageCriteriaQueryService)
         {
-            if (child is T childOfRequestedTyped)
-            {
-                yield return childOfRequestedTyped;
-            }
-            foreach (var descendant in GetAll<T>(child.ContentLink))
-            {
-                yield return descendant;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Returns pages of a specific page type
-    /// </summary>
-    /// <param name="pageLink"></param>
-    /// <param name="recursive"></param>
-    /// <param name="pageTypeId">ID of the page type to filter by</param>
-    /// <returns></returns>
-    public IEnumerable<PageData> FindPagesByPageType(PageReference pageLink, bool recursive, int pageTypeId)
-    {
-        if (ContentReference.IsNullOrEmpty(pageLink))
-        {
-            throw new ArgumentNullException(nameof(pageLink), "No page link specified, unable to find pages");
+            _contentLoader = contentLoader;
+            _providerManager = providerManager;
+            _pageCriteriaQueryService = pageCriteriaQueryService;
         }
 
-        var pages = recursive
-            ? FindPagesByPageTypeRecursively(pageLink, pageTypeId)
-            : _contentLoader.GetChildren<PageData>(pageLink);
+        public virtual IEnumerable<T> GetAll<T>(ContentReference rootLink)
+            where T : PageData
+        {
+            var children = _contentLoader.GetChildren<PageData>(rootLink);
+            foreach (var child in children)
+            {
+                if (child is T childOfRequestedTyped)
+                {
+                    yield return childOfRequestedTyped;
+                }
+                foreach (var descendant in GetAll<T>(child.ContentLink))
+                {
+                    yield return descendant;
+                }
+            }
+        }
 
-        return pages;
-    }
+        /// <summary>
+        /// Returns pages of a specific page type
+        /// </summary>
+        /// <param name="pageLink"></param>
+        /// <param name="recursive"></param>
+        /// <param name="pageTypeId">ID of the page type to filter by</param>
+        /// <returns></returns>
+        public IEnumerable<PageData> FindPagesByPageType(PageReference pageLink, bool recursive, int pageTypeId)
+        {
+            if (ContentReference.IsNullOrEmpty(pageLink))
+            {
+                throw new ArgumentNullException(nameof(pageLink), "No page link specified, unable to find pages");
+            }
 
-    // Type specified through page type ID
-    private IEnumerable<PageData> FindPagesByPageTypeRecursively(PageReference pageLink, int pageTypeId)
-    {
-        var criteria = new PropertyCriteriaCollection
+            var pages = recursive
+                ? FindPagesByPageTypeRecursively(pageLink, pageTypeId)
+                : _contentLoader.GetChildren<PageData>(pageLink);
+
+            return pages;
+        }
+
+        // Type specified through page type ID
+        private IEnumerable<PageData> FindPagesByPageTypeRecursively(PageReference pageLink, int pageTypeId)
+        {
+            var criteria = new PropertyCriteriaCollection
         {
             new PropertyCriteria
             {
@@ -73,37 +78,38 @@ public class ContentLocator
             }
         };
 
-        // Include content providers serving content beneath the page link specified for the search
-        if (_providerManager.ProviderMap.CustomProvidersExist)
-        {
-            var contentProvider = _providerManager.ProviderMap.GetProvider(pageLink);
-
-            if (contentProvider.HasCapability(ContentProviderCapabilities.Search))
+            // Include content providers serving content beneath the page link specified for the search
+            if (_providerManager.ProviderMap.CustomProvidersExist)
             {
-                criteria.Add(new PropertyCriteria
+                var contentProvider = _providerManager.ProviderMap.GetProvider(pageLink);
+
+                if (contentProvider.HasCapability(ContentProviderCapabilities.Search))
                 {
-                    Name = "EPI:MultipleSearch",
-                    Value = contentProvider.ProviderKey
-                });
+                    criteria.Add(new PropertyCriteria
+                    {
+                        Name = "EPI:MultipleSearch",
+                        Value = contentProvider.ProviderKey
+                    });
+                }
             }
+
+            return _pageCriteriaQueryService.FindPagesWithCriteria(pageLink, criteria);
         }
 
-        return _pageCriteriaQueryService.FindPagesWithCriteria(pageLink, criteria);
-    }
-
-    /// <summary>
-    /// Returns all contact pages beneath the main contacts container
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerable<ContactPage> GetContactPages()
-    {
-        var contactsRootPageLink = _contentLoader.Get<StartPage>(SiteDefinition.Current.StartPage).ContactsPageLink;
-
-        if (ContentReference.IsNullOrEmpty(contactsRootPageLink))
+        /// <summary>
+        /// Returns all contact pages beneath the main contacts container
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<ContactPage> GetContactPages()
         {
-            throw new MissingConfigurationException("No contact page root specified in site settings, unable to retrieve contact pages");
-        }
+            var contactsRootPageLink = _contentLoader.Get<StartPage>(SiteDefinition.Current.StartPage).ContactsPageLink;
 
-        return _contentLoader.GetChildren<ContactPage>(contactsRootPageLink).OrderBy(p => p.PageName);
+            if (ContentReference.IsNullOrEmpty(contactsRootPageLink))
+            {
+                throw new MissingConfigurationException("No contact page root specified in site settings, unable to retrieve contact pages");
+            }
+
+            return _contentLoader.GetChildren<ContactPage>(contactsRootPageLink).OrderBy(p => p.PageName);
+        }
     }
 }
